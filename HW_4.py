@@ -13,10 +13,9 @@ data = pd.read_csv('breast-cancer-wisconsin.csv')
 indexQuestion = data[ data['bare_nucleoli'] == '?'].index
 data.drop(indexQuestion, inplace = True)
 data.bare_nucleoli = data.bare_nucleoli.astype(int)
+
 # dropping id to only get the columns with values needed
 data_no_id = data.drop(['id'], axis = 1)
-
-print(data_no_id.bare_nucleoli.unique)
 
 # transfering the contents of the data into SQL data base
 conn = sqlite3.connect('breast_cancer_analysis.db')
@@ -31,31 +30,49 @@ conn.close()
 data.to_json('breast.json', orient = 'split')
 df_json = pd.read_json('breast.json', orient = 'split')
 
-'''
-def findMean_STD(column_Choice):
-    col_mean = data[column_Choice].mean()
-    col_std = data[column_Choice].std()
-    print("The", column_Choice, "Mean is:", col_mean, "\nThe", column_Choice,"STD is: ", col_std)
-'''
 def visualGraphs(column_Choice):
     plt.clf()
     data[column_Choice].plot(kind = 'box')
     plt.show()
-    
+
+# shows datafram obj
 print(type(data))
+# shows json format
 print(df_json)
+# shows sql database contents
+print(df_db)
 
 # finding the mean and standard deviation
 print(data_no_id.mean())
 print(data_no_id.std())
-'''
-# displaying the mean and std of every column
-for index in data_no_id.columns:
-    findMean_STD(index)
-'''
-#visualGraphs('bare_nucleoli')
-#TODO 
-# compare curves generated and determine which columns have distrubution functions of similar shape
+
+# showing the graphs of each column
 for index in data_no_id.columns:
     visualGraphs(index)
+'''
+========== Similar Shapes ============
+ size_uniformity & shape_uniformity 
+ marginal_adhesion & normal_nucleoli 
+======================================
+'''
+# Using the dataframe method
+# and scatter plots
+# we can tell that the two columns 
+# "size_uniformity" & "shape_uniformity"
+# are positively correlated
+plt.clf()
+data_no_id.plot(kind = 'scatter', x = 'size_uniformity', y = 'shape_uniformity')
+plt.show()
 
+# groups the records 
+# using the class column
+# shows the mean & std and KDE
+g_data = data_no_id.groupby('class')
+
+print("class mean: \n",g_data.mean())
+print("class std: \n",g_data.std())
+
+# plots the grouped class records into kde
+plt.clf()
+g_data.plot(kind= 'kde')
+plt.show()
