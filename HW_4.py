@@ -43,8 +43,8 @@ print(df_json)
 print(df_db)
 
 # finding the mean and standard deviation
-print(data_no_id.mean())
-print(data_no_id.std())
+print("Data Mean: \n",data_no_id.mean())
+print("Data STD: \n",data_no_id.std())
 
 # showing the graphs of each column
 for index in data_no_id.columns:
@@ -66,13 +66,16 @@ plt.show()
 
 # groups the records 
 # using the class column
-# shows the mean & std and KDE
+# shows the mean & std and boxplot
 g_data = data_no_id.groupby('class')
-
 print("class mean: \n",g_data.mean())
 print("class std: \n",g_data.std())
 
-# plots the grouped class records into kde
-plt.clf()
-g_data.plot(kind= 'kde')
-plt.show()
+#drop class column 
+data_no_class = data_no_id.drop(['class'], axis = 1)
+# plots the grouped class records into boxplot
+# plots for each column by 'class' group
+for index in data_no_class.columns:
+    plt.clf()
+    data_no_id.boxplot(column = [index], by = 'class')
+    plt.show()
